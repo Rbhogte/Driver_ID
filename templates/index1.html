@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Driver identification</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      .container1 {
+        flex: 1;
+        max-width: 600px;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        text-align: center;
+        margin-right: 10px;
+      }
+      .container5 {
+        flex: 1;
+        max-width: 600px;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        text-align: center;
+        margin-right: 10px;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      #ccdForm {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: "#FFFFF";
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
+
+      select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      .container2 {
+        flex: 1;
+        max-width: 600px;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        text-align: center;
+        margin-right: 10px;
+      }
+      .container {
+        flex: 1;
+        max-width: 600px;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        text-align: center;
+      }
+
+      .flex-container {
+        display: flex;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+      }
+
+      .button-container {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-right: 10px;
+      }
+
+      button.submit {
+        background-color: #28a745;
+      }
+      .status {
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      .default {
+        background-color: gray;
+        color: white;
+      }
+
+      .online {
+        background-color: green;
+        color: white;
+      }
+
+      .offline {
+        background-color: red;
+        color: white;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        margin-top: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      .message-box {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      .selfile {
+        margin: 20px;
+        padding: 10px;
+        border: 2px solid #3498db;
+        border-radius: 5px;
+        background-color: #f2f2f2;
+        text-align: center;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 10px 10px 10px 5px;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        outline: none;
+      }
+      form#deleteFaceForm {
+        display: flex;
+        flex-direction: column;
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      form#deleteFaceForm label {
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
+
+      form#deleteFaceForm input[type="text"] {
+        width: calc(100% - 20px);
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      form#deleteFaceForm button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      form#deleteFaceForm button:hover {
+        background-color: #0056b3;
+      }
+
+      div#result {
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      #uploadMessage {
+        padding: 10px;
+        margin-top: 10px;
+        font-size: 16px;
+        text-align: center;
+        display: none;
+      }
+
+      .success {
+        color: green;
+        background-color: #e0f7e0;
+        border: 1px solid #34a334;
+      }
+
+      .error {
+        color: red;
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+      }
+      .loader {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: auto;
+        margin-top: 10px;
+        display: none;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="flex-container">
+      <div class="container5">
+        <h1>Camera Configuration</h1>
+        <form
+          id="ccdForm"
+          method="post"
+          action="/choosecamera"
+          enctype="multipart/form-data"
+        >
+          <label for="camera">Choose a camera:</label>
+          <select name="selectedCamera" id="camera">
+            <option value="123683">ST_01</option>
+            <option value="123654">ST_02</option>
+            <option value="123652">ST_03</option>
+            <option value="123655">ST_04</option>
+            <option value="123653">ST_05</option>
+          </select>
+          <button id="selectButton">Select</button>
+        </form>
+      </div>
+      <div class="container2">
+        <div class="loader" id="loader1"></div>
+        <form id="deviceStatusForm" method="GET" action="/check_status">
+          <button
+            id="DeviceStatus"
+            class="status {% if device_status == 'Online' %}online{% elif device_status == 'Offline' %}offline{% else %}default{% endif %}"
+          >
+            CheckDeviceStatus
+          </button>
+        </form>
+        <div class="loader" id="loader2"></div>
+        <form
+          id="uploadForm"
+          method="post"
+          action="/upload"
+          enctype="multipart/form-data"
+        >
+          <div class="selfile">
+            <input type="file" name="file" />
+          </div>
+          <input type="text" name="name" placeholder="Enter Name" />
+          <button id="uploadButton" class="upload">Upload Face</button>
+        </form>
+        <div id="uploadMessage"></div>
+      </div>
+      <div class="container1">
+        <div class="loader" id="loader3"></div>
+        <h2>Face Data</h2>
+        <form id="showForm" method="GET">
+          <button id="showButton" class="show">Show faces</button>
+        </form>
+        <ul id="facesList"></ul>
+        <div class="loader" id="loader4"></div>
+        <form id="deleteFaceForm" action="/delete_face" method="post">
+          <label for="faceId">Name:</label>
+          <input type="text" id="name" name="name" required />
+          <button type="submit">Delete Face</button>
+        </form>
+        <div id="result"></div>
+      </div>
+      <div class="container" id="driverContainer">
+        <div class="loader" id="loader5"></div>
+        <h1>Driver Identification</h1>
+
+        <form id="compareForm" method="POST" action="/compare">
+          <button id="compareButton" class="submit">Compare</button>
+        </form>
+
+        <div class="message-box">
+          <p>{{ message }}</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showLoader(loaderId) {
+        var loader = document.getElementById(loaderId);
+        loader.style.display = "block";
+      }
+      function hideLoader(loaderId) {
+        var loader = document.getElementById(loaderId);
+        loader.style.display = "none";
+      }
+      let checkFlag = false;
+      let isDeviceOnline = false;
+
+      // Step 1: Start the loop
+      function startLoop() {
+        intervalId = setInterval(async () => {
+          // Check if
+          await checkStatus();
+          console.log("sodsdi");
+          if (!isDeviceOnline) {
+            // If not online, set checkFlag to false
+            checkFlag = false;
+            console.log("Device is offline. Waiting...");
+            return;
+          }
+
+          // If online, check checkFlag
+          clearInterval(intervalId);
+          //   compare();
+          console.log("cdicdn");
+          if (checkFlag) {
+            // If checkFlag is true, wait for 10 minutes and start again
+            console.log("Device is online. Waiting for 10 minutes...");
+            setTimeout(() => {
+              startLoop();
+            }, 10 * 1000); // 10 minutes in milliseconds
+          } else {
+            // If checkFlag is false, call API function compare
+            await compare();
+            console.log("Device is online. Calling API function compare...");
+          }
+        }, 3 * 1000); // 3 minutes in milliseconds
+      }
+
+      function chooseCam() {
+        const selectedCamera = document.getElementById("camera").value;
+        fetch("/choosecamera", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: "selectedCamera=" + encodeURIComponent(selectedCamera),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById("selectedEndpoint").innerText =
+              "Selected Endpoint ID: " + data.endpoint_id;
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+      function displayFaces() {
+        fetch("/display_faces", {
+          method: "GET",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            const facesList = document.getElementById("facesList");
+            facesList.innerHTML = "";
+            data.faces.forEach((face) => {
+              const li = document.createElement("li");
+              li.textContent = `${face.name}`;
+              facesList.appendChild(li);
+              hideLoader("loader3");
+            });
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            hideLoader("loader3");
+          });
+      }
+      function deleteFaces() {
+        const name = document.getElementById("name").value;
+
+        fetch("/delete_face", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: "name=" + encodeURIComponent(name),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            const resultElement = document.getElementById("result");
+            resultElement.innerHTML = "";
+            const resultText = document.createElement("p");
+            resultText.textContent = data.result;
+            resultElement.appendChild(resultText);
+            hideLoader("loader4");
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            hideLoader("loader4");
+          });
+      }
+      function uploadFace(formData) {
+        fetch("/upload", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            const uploadMessage = document.getElementById("uploadMessage");
+
+            if (data.status == "success") {
+              uploadMessage.textContent = "Face uploaded successfully!";
+              uploadMessage.className = "success";
+              hideLoader("loader2");
+            } else {
+              uploadMessage.textContent =
+                "Error uploading face. Please try again.";
+              uploadMessage.className = "error";
+              hideLoader("loader2");
+            }
+            uploadMessage.style.display = "block";
+            hideLoader("loader2");
+          });
+      }
+      function checkStatus() {
+        fetch("/check_status", {
+          method: "GET",
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            const deviceStatusButton = document.getElementById("DeviceStatus");
+            deviceStatusButton.classList.remove("online", "offline", "default");
+            if (data.device_status.toLowerCase() == "online") {
+              isDeviceOnline = true;
+            } else {
+              isDeviceOnline = false;
+            }
+            deviceStatusButton.classList.add(data.device_status.toLowerCase());
+            hideLoader("loader1");
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            hideLoader("loader1");
+          });
+      }
+      function compare() {
+        fetch("/compare", {
+          method: "POST",
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            // Handle response here
+            if (data.status == "success") {
+              console.log("Comparison request successful");
+              if (String(data.message).includes("Driver is authenticated")) {
+                checkFlag = true;
+                startLoop();
+              } else {
+                checkFlag = false;
+                startLoop();
+              }
+              // You can redirect or show a success message here if needed
+              let msgBox = document.querySelector(".message-box");
+              msgBox.innerHTML = "";
+              let resultText = document.createElement("p");
+              resultText.textContent = data.message;
+              msgBox.appendChild(resultText);
+            }
+          })
+          .catch((error) => {
+            console.error("Error during comparison request:", error);
+            alert(error);
+            // You can handle network errors here
+          });
+      }
+
+      document
+        .getElementById("DeviceStatus")
+        .addEventListener("click", function (event) {
+          event.preventDefault();
+          showLoader("loader1");
+          checkStatus();
+          //   fetch("/check_status", {
+          //     method: "GET",
+          //   })
+          //     .then((response) => response.json())
+          //     .then((data) => {
+          //       console.log(data);
+          //       const deviceStatusButton =
+          //         document.getElementById("DeviceStatus");
+          //       deviceStatusButton.classList.remove(
+          //         "online",
+          //         "offline",
+          //         "default"
+          //       );
+          //       deviceStatusButton.classList.add(
+          //         data.device_status.toLowerCase()
+          //       );
+          //       hideLoader("loader1");
+          //     })
+          //     .catch((error) => {
+          //       console.error("Error:", error);
+          //       hideLoader("loader1");
+          //     });
+        });
+
+      document
+        .getElementById("selectButton")
+        .addEventListener("click", function (event) {
+          event.preventDefault();
+          chooseCam();
+          //   const selectedCamera = document.getElementById("camera").value;
+          //   fetch("/choosecamera", {
+          //     method: "POST",
+          //     headers: {
+          //       "Content-Type": "application/x-www-form-urlencoded",
+          //     },
+          //     body: "selectedCamera=" + encodeURIComponent(selectedCamera),
+          //   })
+          //     .then((response) => response.json())
+          //     .then((data) => {
+          //       document.getElementById("selectedEndpoint").innerText =
+          //         "Selected Endpoint ID: " + data.endpoint_id;
+          //     })
+          //     .catch((error) => {
+          //       console.error("Error:", error);
+          //     });
+        });
+      document
+        .getElementById("showButton")
+        .addEventListener("click", function (event) {
+          event.preventDefault();
+          showLoader("loader3");
+          displayFaces();
+          //   fetch("/display_faces", {
+          //     method: "GET",
+          //     headers: {
+          //       "X-Requested-With": "XMLHttpRequest",
+          //     },
+          //   })
+          //     .then((response) => response.json())
+          //     .then((data) => {
+          //       console.log(data);
+          //       const facesList = document.getElementById("facesList");
+          //       facesList.innerHTML = "";
+          //       data.faces.forEach((face) => {
+          //         const li = document.createElement("li");
+          //         li.textContent = `${face.name}`;
+          //         facesList.appendChild(li);
+          //         hideLoader("loader3");
+          //       });
+          //     })
+          //     .catch((error) => {
+          //       console.error("Error:", error);
+          //       hideLoader("loader3");
+          //     });
+        });
+      document
+        .getElementById("deleteFaceForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          showLoader("loader4");
+          deleteFaces();
+          //   const name = document.getElementById("name").value;
+
+          //   fetch("/delete_face", {
+          //     method: "POST",
+          //     headers: {
+          //       "Content-Type": "application/x-www-form-urlencoded",
+          //     },
+          //     body: "name=" + encodeURIComponent(name),
+          //   })
+          //     .then((response) => response.json())
+          //     .then((data) => {
+          //       const resultElement = document.getElementById("result");
+          //       resultElement.innerHTML = "";
+          //       const resultText = document.createElement("p");
+          //       resultText.textContent = data.result;
+          //       resultElement.appendChild(resultText);
+          //       hideLoader("loader4");
+          //     })
+          //     .catch((error) => {
+          //       console.error("Error:", error);
+          //       hideLoader("loader4");
+          //     });
+        });
+
+      document
+        .getElementById("uploadForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          showLoader("loader2");
+          const formData = new FormData(this);
+          uploadFace(formData);
+          //   fetch("/upload", {
+          //     method: "POST",
+          //     body: formData,
+          //   })
+          //     .then((response) => response.json())
+          //     .then((data) => {
+          //       console.log(data);
+          //       const uploadMessage = document.getElementById("uploadMessage");
+
+          //       if (data.status == "success") {
+          //         uploadMessage.textContent = "Face uploaded successfully!";
+          //         uploadMessage.className = "success";
+          //         hideLoader("loader2");
+          //       } else {
+          //         uploadMessage.textContent =
+          //           "Error uploading face. Please try again.";
+          //         uploadMessage.className = "error";
+          //         hideLoader("loader2");
+          //       }
+          //       uploadMessage.style.display = "block";
+          //       hideLoader("loader2");
+          //     });
+        });
+
+      document
+        .getElementById("compareButton")
+        .addEventListener("click", function (event) {
+          event.preventDefault();
+          showLoader("loader5");
+          compare();
+          // startLoop();
+          hideLoader("loader5");
+        });
+      //});
+    </script>
+  </body>
+</html>

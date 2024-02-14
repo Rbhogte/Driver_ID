@@ -435,7 +435,7 @@ def compare():
     response_data, requested_id = send_recording_request(length, content, endpoint_id,summary,start_time)
     print("Response Data:", response_data)
     print("Requested ID:", requested_id)
-    call_loop = 2
+    call_loop = 3
     delay_seconds = 15
     while call_loop > 0:
         result = get_recording_request(requested_id)
@@ -445,7 +445,7 @@ def compare():
             return jsonify({'status': 'success', 'message': "Error in fetching recording status"})
         else:
             print(f"Status: {result['Status']}")
-            if {result['Status']} is not {'COMPLETED'}:
+            if result['Status'] != 'COMPLETED':
                 time.sleep(delay_seconds)
                 call_loop -= 1
                 continue
@@ -560,7 +560,7 @@ def compare():
                     print("Requested ID:", requested_id)
             
                 return jsonify({'status': 'success', 'message': message1})        
-                
+    return jsonify({'status': 'success', 'message': "Error in fetching video"})        
     # if temp_URL is None:
     #     get_recordings(start_timestamp,end_timestamp)
     #     print("@@@@@@@@@@@@@@@@@@@@@@@@@",temp_URL)

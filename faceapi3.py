@@ -19,7 +19,7 @@ from dotenv import load_dotenv
 """
 Constants and Global Variables
 """
-load_dotenv()
+load_dotenv(override=True)
 temp_URL = None
 image_path = None
 output_directory = os.getenv('OUTPUT_DIRECTORY')
@@ -195,7 +195,7 @@ def get_recordings(start_timestamp, end_timestamp):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-        print(base_url)
+        print(face_reg_version)
         return render_template('index1.html')
 @app.route('/choosecamera', methods=['POST'])
 def choosecamera():
@@ -295,7 +295,9 @@ offset_param = 0
 faces_data = get_faces(faceset_id=faceset_id_param, limit=limit_param, offset=offset_param)
 def perform_face_lookup(lookup_data):
     endpoint = f"{face_reg_base_url}/{face_reg_version}/lookups/face"
+    # endpoint ="https://frec.edgetensor.ai/v3/lookups/face"
     headers = get_headers()
+    print("ENDPOINT",endpoint)
     try:
         response = requests.post(endpoint, json=lookup_data, headers=headers)
         return response.json()
@@ -304,6 +306,7 @@ def perform_face_lookup(lookup_data):
  
 def perform_face_landmark_lookup(lookup_data):
     endpoint = f"{face_reg_base_url}/{face_reg_version}/lookups/landmark"
+    # endpoint = "https://frec.edgetensor.ai/v3/lookups/landmark"
     headers = get_headers()
     try:
         response = requests.post(endpoint, json=lookup_data, headers=headers)
@@ -487,6 +490,7 @@ def compare():
                 cv2.imwrite(output_filename, cropped_image)  
                 with open(image_filename, "rb") as image_file:
                     image_data = base64.b64encode(image_file.read()).decode("utf-8")
+                    
                 lookup_request_data = {
                     "faceset_id": '67616902-2903-4c7d-836e-3d4b18dfb6a3',
                     "project_id": "3581d0ca-2ad2-423d-980e-a5dc681faaea",

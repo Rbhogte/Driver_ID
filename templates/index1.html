@@ -499,6 +499,8 @@
               let resultText = document.createElement("p");
               resultText.textContent = data.message;
               msgBox.appendChild(resultText);
+            } else {
+              alert(data.message);
             }
           })
           .catch((error) => {

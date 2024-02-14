@@ -415,7 +415,7 @@ def create_face(image_path, name):
 
 @app.route('/compare', methods=['POST'])
 def compare():
-    global temp_URL
+    temp_URL = None
     current_timestamp = int(datetime.datetime.now().timestamp() * 1000)
     end_timestamp = current_timestamp + 15000
     start_timestamp = current_timestamp
@@ -426,150 +426,149 @@ def compare():
     summary = None
     endpoint_id = session.get('endpoint_id')
     print("Endpoint ID in /compare:", endpoint_id)
+
+    isOnline, device_status = send_status_request(endpoint_id)
+    if isOnline == False:
+        print("Device is offline")
+        return jsonify({'status': 'error', 'message': 'Device is offline'})
+    
     response_data, requested_id = send_recording_request(length, content, endpoint_id,summary,start_time)
     print("Response Data:", response_data)
     print("Requested ID:", requested_id)
+    call_loop = 2
     delay_seconds = 15
-    time.sleep(delay_seconds)
-    recording_request_id = requested_id  
-    #recording_request_id = "9334159c-b920-4b30-811c-547c3e200df7"
-    result = get_recording_request(recording_request_id)
-    print("Result:", result)
-    # if "error" in result:
-    #     print(result["error"])
-    # else:
-    #     for key, value in result.items():
-    #         print(f"{key}: {value}")
-    if "error" in result:
-        time.sleep(delay_seconds)
-        get_recordings(start_timestamp,end_timestamp)
-    else:
-        print(f"Status: {result['Status']}")
-        status1 = {result['Status']}
-        print(status1)
-        if {result['Status']} is not {'COMPLETED'}:
-            time.sleep(delay_seconds)
-        print(f"Start Time: {result['Start Time']}")
-        #print("END TIME",result)
-        time.sleep(delay_seconds)
-        get_recordings(start_timestamp,end_timestamp)
-    print("################################",temp_URL)
-    if temp_URL is None:
-        get_recordings(start_timestamp,end_timestamp)
-        print("@@@@@@@@@@@@@@@@@@@@@@@@@",temp_URL)
-        if temp_URL is None:
-            message1 = "device not provide any video"
-            # return render_template('index1.html', message=message1)
-            return jsonify({'status': 'success', 'message': message1})
-           
-    else:
-        video_response = requests.get(temp_URL)
-        video_data = video_response.content
-        if video_response.status_code == 200:
-            video_data = video_response.content
-            with open(local_file_path, "wb") as video_file:
-                video_file.write(video_data)
-                print(f"Video downloaded and saved as {local_file_path}")
+    while call_loop > 0:
+        result = get_recording_request(requested_id)
+        print("Result:", result)
+        if "error" in result:
+            print("Error:", result["error"])
+            return jsonify({'status': 'success', 'message': "Error in fetching recording status"})
         else:
-            print(f"Failed to download video. Status code: {video_response.status_code}")
-   
-        frame_count = 0
-        cap = cv2.VideoCapture(local_file_path)
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                break  
-            frame_count += 1
-            if frame_count == 3:
+            print(f"Status: {result['Status']}")
+            if {result['Status']} is not {'COMPLETED'}:
+                time.sleep(delay_seconds)
+                call_loop -= 1
+                continue
+            else:
+                print(f"Start Time: {result['Start Time']}")
+                temp_URL = get_recordings(start_timestamp,end_timestamp)
+                video_response = requests.get(temp_URL)
+                video_data = video_response.content
+                if video_response.status_code == 200:
+                    video_data = video_response.content
+                    with open(local_file_path, "wb") as video_file:
+                        video_file.write(video_data)
+                        print(f"Video downloaded and saved as {local_file_path}")
+                else:
+                    print(f"Failed to download video. Status code: {video_response.status_code}")
+        
+                frame_count = 0
+                cap = cv2.VideoCapture(local_file_path)
+                while True:
+                    ret, frame = cap.read()
+                    if not ret:
+                        break  
+                    frame_count += 1
+                    if frame_count == 3:
+                        image_filename = os.path.join(output_directory, "first_frame.jpg")
+                        cv2.imwrite(image_filename, frame)
+                        print(f"Saved the third frame as {image_filename}")
+                        break
+                cap.release()
+                cv2.destroyAllWindows()
                 image_filename = os.path.join(output_directory, "first_frame.jpg")
-                cv2.imwrite(image_filename, frame)
-                print(f"Saved the third frame as {image_filename}")
-                break
-        cap.release()
-        cv2.destroyAllWindows()
-        image_filename = os.path.join(output_directory, "first_frame.jpg")
-        image = cv2.imread(image_filename)
-        left = 130  
-        top = 90    
-        right = 350  
-        bottom = 350
-        cropped_image = image[top:bottom, left:right]
-        output_filename = os.path.join(output_directory, "cropped_image.jpg")
-        cv2.imwrite(output_filename, cropped_image)  
-        with open(image_filename, "rb") as image_file:
-            image_data = base64.b64encode(image_file.read()).decode("utf-8")
-        lookup_request_data = {
-            "faceset_id": '67616902-2903-4c7d-836e-3d4b18dfb6a3',
-            "project_id": "3581d0ca-2ad2-423d-980e-a5dc681faaea",
-            "size": 0,
-            "merge_images_for_lookup": False,
-            "lookup_request_landmarks": [
-                {
-                    "face_landmark": [
-                        [0]
+                image = cv2.imread(image_filename)
+                left = 130  
+                top = 90    
+                right = 350  
+                bottom = 350
+                cropped_image = image[top:bottom, left:right]
+                output_filename = os.path.join(output_directory, "cropped_image.jpg")
+                cv2.imwrite(output_filename, cropped_image)  
+                with open(image_filename, "rb") as image_file:
+                    image_data = base64.b64encode(image_file.read()).decode("utf-8")
+                lookup_request_data = {
+                    "faceset_id": '67616902-2903-4c7d-836e-3d4b18dfb6a3',
+                    "project_id": "3581d0ca-2ad2-423d-980e-a5dc681faaea",
+                    "size": 0,
+                    "merge_images_for_lookup": False,
+                    "lookup_request_landmarks": [
+                        {
+                            "face_landmark": [
+                                [0]
+                            ],
+                            "sequence_number": 0,
+                            "base64string":  image_data,
+                            "embedding_vector": [
+                                0
+                            ]
+                        }
                     ],
-                    "sequence_number": 0,
-                    "base64string":  image_data,
-                    "embedding_vector": [
-                        0
+                    "lookup_request_faces": [
+                        {
+                        "sequence_number": 0,
+                        "base64string":image_data,
+                    }
                     ]
                 }
-            ],
-            "lookup_request_faces": [
-                {
-                "sequence_number": 0,
-                "base64string":image_data,
-            }
-            ]
-        }
-    face_lookup_result = perform_face_lookup(lookup_request_data)
-    print("Face Lookup Result:", json.dumps(face_lookup_result, indent=4))        
-    face_landmark_lookup_result = perform_face_landmark_lookup(lookup_request_data)
-    print("Face Landmark Lookup Result:", json.dumps(face_landmark_lookup_result, indent=4))
- 
- 
-    confidence_threshold = 0.8
- 
-    if "lookup_results" in face_landmark_lookup_result:
-        lookup_result = face_landmark_lookup_result["lookup_results"][0]
-        confidence_score = lookup_result.get("confidence_score", 0)  
-        if confidence_score > confidence_threshold:
-            print("Face recognized with confidence:", confidence_score)
-            print("Face Token:", lookup_result["best_matched_face_token"])
-            recognized_name = "Unknown"
-            for lookup_result_face in face_lookup_result.get("lookup_results", []):
-                if lookup_result_face.get("best_matched_face_token") == lookup_result["best_matched_face_token"]:
-                    recognized = lookup_result_face.get("best_matched_face_token", "Unknown")
-                    for face_info in faces_data:
-                        if face_info.get("face_token") == lookup_result["best_matched_face_token"]:
-                            recognized_name = face_info.get("name", "Unknown")
-                            break
-                break                
- 
-            print("Recognized Name:", recognized_name)
- 
- 
-        else:
-            print("Unknown face. Confidence:", confidence_score)
-    else:
-        print("No face landmark lookup results.")
- 
-    if confidence_score > confidence_threshold:
-        message1 = "Driver is authenticated."
-        summary = "driver_verified"
-        response_data, requested_id = send_recording_request(length, content, endpoint_id,summary,start_time)
-        print("Response Data:", response_data)
-        print("Requested ID:", requested_id)
-    elif confidence_score == -1:
-        message1 = "Driver is not prsent in vechical."
-        summary = ""    
-    else:
-        message1 = "Driver is not authenticated."
-        summary = "driver_verification_failed"
-        response_data, requested_id = send_recording_request(length, content, endpoint_id,summary,start_time)
-        print("Response Data:", response_data)
-        print("Requested ID:", requested_id)
- 
-    return jsonify({'status': 'success', 'message': message1})
+                face_lookup_result = perform_face_lookup(lookup_request_data)
+                print("Face Lookup Result:", json.dumps(face_lookup_result, indent=4))        
+                face_landmark_lookup_result = perform_face_landmark_lookup(lookup_request_data)
+                print("Face Landmark Lookup Result:", json.dumps(face_landmark_lookup_result, indent=4))
+        
+        
+                confidence_threshold = 0.8
+        
+                if "lookup_results" in face_landmark_lookup_result:
+                    lookup_result = face_landmark_lookup_result["lookup_results"][0]
+                    confidence_score = lookup_result.get("confidence_score", 0)  
+                    if confidence_score > confidence_threshold:
+                        print("Face recognized with confidence:", confidence_score)
+                        print("Face Token:", lookup_result["best_matched_face_token"])
+                        recognized_name = "Unknown"
+                        for lookup_result_face in face_lookup_result.get("lookup_results", []):
+                            if lookup_result_face.get("best_matched_face_token") == lookup_result["best_matched_face_token"]:
+                                recognized = lookup_result_face.get("best_matched_face_token", "Unknown")
+                                for face_info in faces_data:
+                                    if face_info.get("face_token") == lookup_result["best_matched_face_token"]:
+                                        recognized_name = face_info.get("name", "Unknown")
+                                        break
+                            break                
+            
+                        print("Recognized Name:", recognized_name)
+            
+            
+                    else:
+                        print("Unknown face. Confidence:", confidence_score)
+                else:
+                    print("No face landmark lookup results.")
+            
+                if confidence_score > confidence_threshold:
+                    message1 = "Driver is authenticated."
+                    summary = "driver_verified"
+                    response_data, requested_id = send_recording_request(length, content, endpoint_id,summary,start_time)
+                    print("Response Data:", response_data)
+                    print("Requested ID:", requested_id)
+                elif confidence_score == -1:
+                    message1 = "Driver is not present in vehicle"
+                    summary = ""    
+                else:
+                    message1 = "Driver is not authenticated."
+                    summary = "driver_verification_failed"
+                    response_data, requested_id = send_recording_request(length, content, endpoint_id,summary,start_time)
+                    print("Response Data:", response_data)
+                    print("Requested ID:", requested_id)
+            
+                return jsonify({'status': 'success', 'message': message1})        
+                
+    # if temp_URL is None:
+    #     get_recordings(start_timestamp,end_timestamp)
+    #     print("@@@@@@@@@@@@@@@@@@@@@@@@@",temp_URL)
+    #     if temp_URL is None:
+    #         message1 = "device not provide any video"
+    #         # return render_template('index1.html', message=message1)
+    #         return jsonify({'status': 'success', 'message': message1})
+         
+
 if __name__ == '__main__':
     app.run(debug=True)
